@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025378881898",
+    "project_id": "chadconnect-217a8",
+    "storage_bucket": "chadconnect-217a8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025378881898:android:16c07e506e0a9f1b615513",
+        "android_client_info": {
+          "package_name": "com.chadconnect.chadconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKLu5-31HjgIxgzz5q3xjlIFlK33nf97c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
