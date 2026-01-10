@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/auth/current_user_provider.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/study_api_repository.dart';
 import '../domain/study_catalog.dart';
@@ -58,13 +57,12 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
   Future<void> refresh() async {
     final repo = ref.read(studyApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
     final lang = ref.read(settingsControllerProvider).locale.languageCode;
 
     state = const AsyncValue.loading();
     try {
       final catalog = await repo.fetchCatalog(lang: lang);
-      final apiState = await repo.fetchState(userId: userId);
+      final apiState = await repo.fetchState();
       state = AsyncValue.data(
         StudyData(
           catalog: catalog,
@@ -79,7 +77,6 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
   Future<void> toggleCompleted(int chapterId) async {
     final repo = ref.read(studyApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
     final current = state.valueOrNull;
     if (current == null) return;
 
@@ -94,7 +91,7 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
     state = AsyncValue.data(current.copyWith(completedChapterIds: next));
 
     try {
-      await repo.setCompleted(userId: userId, chapterId: chapterId, completed: nextValue);
+      await repo.setCompleted(chapterId: chapterId, completed: nextValue);
     } catch (_) {
       state = AsyncValue.data(current);
     }
@@ -102,7 +99,6 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
   Future<void> toggleFavorite(int chapterId) async {
     final repo = ref.read(studyApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
     final current = state.valueOrNull;
     if (current == null) return;
 
@@ -117,7 +113,7 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
     state = AsyncValue.data(current.copyWith(favoriteChapterIds: next));
 
     try {
-      await repo.setFavorite(userId: userId, chapterId: chapterId, favorite: nextValue);
+      await repo.setFavorite(chapterId: chapterId, favorite: nextValue);
     } catch (_) {
       state = AsyncValue.data(current);
     }
@@ -125,7 +121,6 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
   Future<void> clearProgress() async {
     final repo = ref.read(studyApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
     final current = state.valueOrNull;
     if (current == null) return;
 
@@ -134,7 +129,7 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
     try {
       for (final id in ids) {
-        await repo.setCompleted(userId: userId, chapterId: id, completed: false);
+        await repo.setCompleted(chapterId: id, completed: false);
       }
     } catch (_) {
       state = AsyncValue.data(current);
@@ -143,7 +138,6 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
   Future<void> clearFavorites() async {
     final repo = ref.read(studyApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
     final current = state.valueOrNull;
     if (current == null) return;
 
@@ -152,7 +146,7 @@ class StudyController extends Notifier<AsyncValue<StudyData>> {
 
     try {
       for (final id in ids) {
-        await repo.setFavorite(userId: userId, chapterId: id, favorite: false);
+        await repo.setFavorite(chapterId: id, favorite: false);
       }
     } catch (_) {
       state = AsyncValue.data(current);

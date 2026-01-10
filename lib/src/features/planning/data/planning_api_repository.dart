@@ -39,11 +39,10 @@ class PlanningApiRepository {
     );
   }
 
-  Future<List<PlanningGoal>> fetchGoals({required int userId, required DateTime weekStart}) async {
+  Future<List<PlanningGoal>> fetchGoals({required DateTime weekStart}) async {
     final r = await _dio.get(
       '/api/planning/goals',
       queryParameters: {
-        'user_id': userId,
         'week_start': _date(weekStart),
       },
     );
@@ -55,11 +54,10 @@ class PlanningApiRepository {
     return items.map((e) => _fromApi(Map<String, dynamic>.from(e as Map))).toList();
   }
 
-  Future<PlanningGoal> createGoal({required int userId, required DateTime weekStart, required String title}) async {
+  Future<PlanningGoal> createGoal({required DateTime weekStart, required String title}) async {
     final r = await _dio.post(
       '/api/planning/goals',
       data: {
-        'user_id': userId,
         'week_start': _date(weekStart),
         'title': title,
       },

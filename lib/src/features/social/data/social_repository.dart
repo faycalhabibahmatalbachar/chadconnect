@@ -114,13 +114,12 @@ class SocialRepository {
     return Map<String, dynamic>.from(r.data as Map);
   }
 
-  Future<List<SocialPost>> fetchPosts({required int userId, int limit = 20, int offset = 0}) async {
+  Future<List<SocialPost>> fetchPosts({int limit = 20, int offset = 0}) async {
     final r = await _dio.get(
       '/api/posts',
       queryParameters: {
         'limit': limit,
         'offset': offset,
-        'user_id': userId,
       },
     );
 
@@ -132,7 +131,6 @@ class SocialRepository {
   }
 
   Future<SocialPost> createPost({
-    required int userId,
     required String body,
     String? mediaUrl,
     String? mediaKind,
@@ -143,7 +141,6 @@ class SocialRepository {
     final r = await _dio.post(
       '/api/posts',
       data: {
-        'user_id': userId,
         'body': body,
         if (mediaUrl != null) 'media_url': mediaUrl,
         if (mediaKind != null) 'media_kind': mediaKind,
@@ -156,45 +153,40 @@ class SocialRepository {
     return SocialPost.fromJson(Map<String, dynamic>.from(r.data as Map));
   }
 
-  Future<void> likePost({required int postId, required int userId}) async {
-    await _dio.post('/api/posts/$postId/like', data: {'user_id': userId});
+  Future<void> likePost({required int postId}) async {
+    await _dio.post('/api/posts/$postId/like');
   }
 
-  Future<void> unlikePost({required int postId, required int userId}) async {
-    await _dio.delete('/api/posts/$postId/like', queryParameters: {'user_id': userId});
+  Future<void> unlikePost({required int postId}) async {
+    await _dio.delete('/api/posts/$postId/like');
   }
 
-  Future<void> setReaction({required int postId, required int userId, required String reaction}) async {
+  Future<void> setReaction({required int postId, required String reaction}) async {
     await _dio.post(
       '/api/posts/$postId/reaction',
       data: {
-        'user_id': userId,
         'reaction': reaction,
       },
     );
   }
 
-  Future<void> removeReaction({required int postId, required int userId}) async {
-    await _dio.delete(
-      '/api/posts/$postId/reaction',
-      queryParameters: {'user_id': userId},
-    );
+  Future<void> removeReaction({required int postId}) async {
+    await _dio.delete('/api/posts/$postId/reaction');
   }
 
-  Future<void> bookmarkPost({required int postId, required int userId}) async {
-    await _dio.post('/api/posts/$postId/bookmark', data: {'user_id': userId});
+  Future<void> bookmarkPost({required int postId}) async {
+    await _dio.post('/api/posts/$postId/bookmark');
   }
 
-  Future<void> unbookmarkPost({required int postId, required int userId}) async {
-    await _dio.delete('/api/posts/$postId/bookmark', queryParameters: {'user_id': userId});
+  Future<void> unbookmarkPost({required int postId}) async {
+    await _dio.delete('/api/posts/$postId/bookmark');
   }
 
-  Future<void> deletePost({required int postId, required int userId}) async {
-    await _dio.delete('/api/posts/$postId', queryParameters: {'user_id': userId});
+  Future<void> deletePost({required int postId}) async {
+    await _dio.delete('/api/posts/$postId');
   }
 
   Future<void> reportPost({
-    required int reporterUserId,
     required int postId,
     required String reason,
     String? details,
@@ -202,7 +194,6 @@ class SocialRepository {
     await _dio.post(
       '/api/reports',
       data: {
-        'reporter_user_id': reporterUserId,
         'target_type': 'post',
         'target_id': postId,
         'reason': reason,
@@ -217,7 +208,6 @@ class SocialRepository {
       queryParameters: {
         'limit': limit,
         'offset': offset,
-        'user_id': 0,
       },
     );
 
@@ -228,28 +218,14 @@ class SocialRepository {
     return items.map((e) => SocialComment.fromJson(Map<String, dynamic>.from(e as Map))).toList();
   }
 
-  Future<List<SocialComment>> fetchCommentsForUser({required int postId, required int userId, int limit = 100, int offset = 0}) async {
-    final r = await _dio.get(
-      '/api/posts/$postId/comments',
-      queryParameters: {
-        'limit': limit,
-        'offset': offset,
-        'user_id': userId,
-      },
-    );
-
-    final data = r.data;
-    final items = (data is Map ? data['items'] : null) as List<dynamic>?;
-    if (items == null) return const [];
-
-    return items.map((e) => SocialComment.fromJson(Map<String, dynamic>.from(e as Map))).toList();
+  Future<List<SocialComment>> fetchCommentsForUser({required int postId, int limit = 100, int offset = 0}) {
+    return fetchComments(postId: postId, limit: limit, offset: offset);
   }
 
-  Future<SocialComment> addComment({required int postId, required int userId, required String body}) async {
+  Future<SocialComment> addComment({required int postId, required String body}) async {
     final r = await _dio.post(
       '/api/posts/$postId/comments',
       data: {
-        'user_id': userId,
         'body': body,
       },
     );
@@ -259,14 +235,12 @@ class SocialRepository {
 
   Future<SocialComment> replyToComment({
     required int postId,
-    required int userId,
     required int parentCommentId,
     required String body,
   }) async {
     final r = await _dio.post(
       '/api/posts/$postId/comments',
       data: {
-        'user_id': userId,
         'body': body,
         'parent_comment_id': parentCommentId,
       },
@@ -274,20 +248,19 @@ class SocialRepository {
     return SocialComment.fromJson(Map<String, dynamic>.from(r.data as Map));
   }
 
-  Future<void> deleteComment({required int commentId, required int userId}) async {
-    await _dio.delete('/api/comments/$commentId', queryParameters: {'user_id': userId});
+  Future<void> deleteComment({required int commentId}) async {
+    await _dio.delete('/api/comments/$commentId');
   }
 
-  Future<void> likeComment({required int commentId, required int userId}) async {
-    await _dio.post('/api/comments/$commentId/like', data: {'user_id': userId});
+  Future<void> likeComment({required int commentId}) async {
+    await _dio.post('/api/comments/$commentId/like');
   }
 
-  Future<void> unlikeComment({required int commentId, required int userId}) async {
-    await _dio.delete('/api/comments/$commentId/like', queryParameters: {'user_id': userId});
+  Future<void> unlikeComment({required int commentId}) async {
+    await _dio.delete('/api/comments/$commentId/like');
   }
 
   Future<void> reportComment({
-    required int reporterUserId,
     required int commentId,
     required String reason,
     String? details,
@@ -295,7 +268,6 @@ class SocialRepository {
     await _dio.post(
       '/api/reports',
       data: {
-        'reporter_user_id': reporterUserId,
         'target_type': 'comment',
         'target_id': commentId,
         'reason': reason,
@@ -304,11 +276,10 @@ class SocialRepository {
     );
   }
 
-  Future<SocialPost> updatePost({required int postId, required int userId, required String body}) async {
+  Future<SocialPost> updatePost({required int postId, required String body}) async {
     final r = await _dio.put(
       '/api/posts/$postId',
       data: {
-        'user_id': userId,
         'body': body,
       },
     );

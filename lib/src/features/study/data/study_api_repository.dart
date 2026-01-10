@@ -44,30 +44,27 @@ class StudyApiRepository {
     return items.map((e) => StudySubject.fromJson(Map<String, dynamic>.from(e as Map))).toList();
   }
 
-  Future<StudyApiState> fetchState({required int userId}) async {
+  Future<StudyApiState> fetchState() async {
     final r = await _dio.get(
       '/api/study/state',
-      queryParameters: {'user_id': userId},
     );
 
     return StudyApiState.fromJson(Map<String, dynamic>.from(r.data as Map));
   }
 
-  Future<void> setCompleted({required int userId, required int chapterId, required bool completed}) async {
+  Future<void> setCompleted({required int chapterId, required bool completed}) async {
     await _dio.post(
       '/api/study/chapters/$chapterId/completed',
       data: {
-        'user_id': userId,
         'completed': completed,
       },
     );
   }
 
-  Future<void> setFavorite({required int userId, required int chapterId, required bool favorite}) async {
+  Future<void> setFavorite({required int chapterId, required bool favorite}) async {
     await _dio.post(
       '/api/study/chapters/$chapterId/favorite',
       data: {
-        'user_id': userId,
         'favorite': favorite,
       },
     );

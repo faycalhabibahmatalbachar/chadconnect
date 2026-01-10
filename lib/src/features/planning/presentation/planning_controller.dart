@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/auth/current_user_provider.dart';
 import '../data/planning_api_repository.dart';
 import '../domain/planning_goal.dart';
 
@@ -49,10 +48,9 @@ class PlanningController extends Notifier<PlanningState> {
 
   Future<void> _loadForWeek(DateTime weekStart) async {
     final repo = ref.read(planningApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
 
     try {
-      final goals = await repo.fetchGoals(userId: userId, weekStart: weekStart);
+      final goals = await repo.fetchGoals(weekStart: weekStart);
       state = state.copyWith(weekStart: weekStart, goals: goals);
     } catch (_) {
       state = state.copyWith(weekStart: weekStart, goals: const []);
@@ -80,10 +78,9 @@ class PlanningController extends Notifier<PlanningState> {
     if (trimmed.isEmpty) return;
 
     final repo = ref.read(planningApiRepositoryProvider);
-    final userId = ref.read(currentUserIdProvider);
 
     try {
-      await repo.createGoal(userId: userId, weekStart: state.weekStart, title: trimmed);
+      await repo.createGoal(weekStart: state.weekStart, title: trimmed);
       await _loadForWeek(state.weekStart);
     } catch (_) {}
   }

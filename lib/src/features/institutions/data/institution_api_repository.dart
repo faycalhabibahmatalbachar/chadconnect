@@ -50,11 +50,10 @@ class InstitutionApiRepository {
     return items.map((e) => _fromApi(Map<String, dynamic>.from(e as Map))).toList();
   }
 
-  Future<Institution> createPending({required int userId, required String name, required String city}) async {
+  Future<Institution> createPending({required String name, required String city}) async {
     final r = await _dio.post(
       '/api/institutions',
       data: {
-        'user_id': userId,
         'name': name,
         'city': city,
         'country': 'Chad',
@@ -67,8 +66,6 @@ class InstitutionApiRepository {
   Future<Institution> setStatus({
     required int id,
     required InstitutionValidationStatus status,
-    required int validatedByUserId,
-    required String role,
   }) async {
     final apiStatus = switch (status) {
       InstitutionValidationStatus.pendingValidation => 'pending',
@@ -80,9 +77,7 @@ class InstitutionApiRepository {
       '/api/institutions/$id/status',
       data: {
         'status': apiStatus,
-        'validated_by_user_id': validatedByUserId,
       },
-      options: Options(headers: {'x-role': role}),
     );
 
     return _fromApi(Map<String, dynamic>.from(r.data as Map));

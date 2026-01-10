@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chadconnect/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../../../core/auth/current_user_provider.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/institution_api_repository.dart';
 
@@ -31,13 +30,12 @@ class _CreateInstitutionPageState extends ConsumerState<CreateInstitutionPage> {
 
     final repo = ref.read(institutionApiRepositoryProvider);
     final role = ref.read(settingsControllerProvider).role;
-    final userId = ref.read(currentUserIdProvider);
 
     if (role != UserRole.teacher) {
       return;
     }
 
-    await repo.createPending(userId: userId, name: _name.text.trim(), city: _city.text.trim());
+    await repo.createPending(name: _name.text.trim(), city: _city.text.trim());
 
     ref.invalidate(institutionsProvider);
 

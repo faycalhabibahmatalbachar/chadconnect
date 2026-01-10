@@ -6,7 +6,7 @@ export function setSessionCookieOnResponse(res: NextResponse, token: string): Ne
   res.cookies.set(env.ADMIN_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
   });
   return res;
@@ -16,7 +16,7 @@ export function clearSessionCookieOnResponse(res: NextResponse): NextResponse {
   res.cookies.set(env.ADMIN_COOKIE_NAME, '', {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 0,
   });

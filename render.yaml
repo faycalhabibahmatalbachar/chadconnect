@@ -1,0 +1,121 @@
+services:
+  # Backend API Server
+  - type: web
+    name: chadconnect-api
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: CORS_ORIGINS
+        generateValue: true
+        # À remplir manuellement après déploiement avec l'URL de l'admin web
+      - key: MYSQL_HOST
+        sync: false
+        # À configurer avec votre base de données MySQL externe
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        value: chadconnect
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_TTL_SECONDS
+        value: 900
+      - key: JWT_REFRESH_TTL_DAYS
+        value: 30
+      - key: REDIS_URL
+        sync: false
+        # À configurer avec Redis externe (Upstash ou Redis Labs)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: chadconnect
+      - key: FIREBASE_SERVICE_ACCOUNT_BASE64
+        sync: false
+        # Base64 du fichier firebase-service-account.json
+      - key: FIREBASE_STORAGE_BUCKET
+        value: chadconnect-217a8.firebasestorage.app
+      - key: MAX_VIDEO_SIZE_BYTES
+        value: 1073741824
+      - key: FFMPEG_PATH
+        value: /usr/bin/ffmpeg
+      - key: FFPROBE_PATH
+        value: /usr/bin/ffprobe
+
+  # Admin Web (Next.js)
+  - type: web
+    name: chadconnect-admin
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd admin_web && npm install && npm run build
+    startCommand: cd admin_web && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        value: chadconnect
+      - key: ADMIN_COOKIE_NAME
+        value: cc_admin_session
+      - key: ADMIN_SESSION_DAYS
+        value: 7
+
+  # Video Worker
+  - type: worker
+    name: chadconnect-video-worker
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm run worker
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        value: chadconnect
+      - key: REDIS_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: chadconnect
+      - key: FIREBASE_SERVICE_ACCOUNT_BASE64
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        value: chadconnect-217a8.firebasestorage.app
+      - key: MAX_VIDEO_SIZE_BYTES
+        value: 1073741824
+      - key: FFMPEG_PATH
+        value: /usr/bin/ffmpeg
+      - key: FFPROBE_PATH
+        value: /usr/bin/ffprobe

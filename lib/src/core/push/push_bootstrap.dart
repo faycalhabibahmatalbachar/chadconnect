@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../auth/current_user_provider.dart';
+import '../auth/auth_controller.dart';
 import 'push_repository.dart';
 
 class PushBootstrap {
@@ -14,6 +14,7 @@ class PushBootstrap {
   final Ref _ref;
 
   StreamSubscription<String>? _tokenRefreshSub;
+  ProviderSubscription? _authSub;
 
   Future<void> init() async {
     if (defaultTargetPlatform != TargetPlatform.android) return;
@@ -29,6 +30,20 @@ class PushBootstrap {
     );
 
     await _registerCurrentToken();
+
+    _authSub?.close();
+    _authSub = _ref.listen(authControllerProvider, (prev, next) {
+      final wasAuthed = prev?.valueOrNull != null;
+      final isAuthed = next.valueOrNull != null;
+      if (!wasAuthed && isAuthed) {
+        Future(() async {
+          try {
+            await _registerCurrentToken();
+          } catch (_) {
+          }
+        });
+      }
+    });
 
     _tokenRefreshSub?.cancel();
     _tokenRefreshSub = messaging.onTokenRefresh.listen((token) async {
@@ -46,6 +61,8 @@ class PushBootstrap {
   Future<void> dispose() async {
     await _tokenRefreshSub?.cancel();
     _tokenRefreshSub = null;
+    _authSub?.close();
+    _authSub = null;
   }
 
   Future<void> _registerCurrentToken() async {
@@ -55,11 +72,11 @@ class PushBootstrap {
   }
 
   Future<void> _registerToken(String token) async {
-    final userId = _ref.read(currentUserIdProvider);
+    final session = _ref.read(authControllerProvider).valueOrNull;
+    if (session == null) return;
     final repo = _ref.read(pushRepositoryProvider);
 
     await repo.registerToken(
-      userId: userId,
       token: token,
       platform: 'android',
     );

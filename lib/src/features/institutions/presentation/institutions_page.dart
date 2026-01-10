@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:chadconnect/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../../../core/auth/current_user_provider.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/institution_api_repository.dart';
 import '../domain/institution.dart';
@@ -22,11 +21,6 @@ class InstitutionsPage extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     final repo = ref.read(institutionApiRepositoryProvider);
-    final currentUserId = ref.watch(currentUserIdProvider);
-    final roleHeader = switch (role) {
-      UserRole.admin => 'admin',
-      _ => 'student',
-    };
 
     return Scaffold(
       appBar: AppBar(
@@ -123,8 +117,6 @@ class InstitutionsPage extends ConsumerWidget {
                                     await repo.setStatus(
                                       id: it.id,
                                       status: InstitutionValidationStatus.approved,
-                                      validatedByUserId: currentUserId,
-                                      role: roleHeader,
                                     );
                                     ref.invalidate(institutionsProvider);
                                   },
@@ -136,8 +128,6 @@ class InstitutionsPage extends ConsumerWidget {
                                     await repo.setStatus(
                                       id: it.id,
                                       status: InstitutionValidationStatus.rejected,
-                                      validatedByUserId: currentUserId,
-                                      role: roleHeader,
                                     );
                                     ref.invalidate(institutionsProvider);
                                   },

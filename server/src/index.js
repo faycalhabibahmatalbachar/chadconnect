@@ -16,7 +16,25 @@ const app = express();
 
 app.locals.pool = pool;
 
-app.use(cors());
+function parseCorsOrigins() {
+  const raw = process.env.CORS_ORIGINS;
+  if (!raw) return [];
+
+  return String(raw)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+const corsOrigins = parseCorsOrigins();
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    if (corsOrigins.length === 0) return cb(null, true);
+    return cb(null, corsOrigins.includes(origin));
+  },
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(optionalAuth);
 

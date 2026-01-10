@@ -14,14 +14,12 @@ class PushRepository {
   final Dio _dio;
 
   Future<void> registerToken({
-    required int userId,
     required String token,
     required String platform,
   }) async {
     await _dio.post(
       '/api/push/register',
       data: {
-        'user_id': userId,
         'token': token,
         'platform': platform,
       },
