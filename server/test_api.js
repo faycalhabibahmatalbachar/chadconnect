@@ -94,7 +94,7 @@ async function testUserRegistration() {
 
 async function testUserLogin() {
   logSection('3. TEST USER LOGIN');
-  
+
   // Get the phone number from the previous test
   // For this test, we'll create a new user
   const timestamp = Date.now();
@@ -107,7 +107,7 @@ async function testUserLogin() {
   try {
     // First register
     await axios.post(`${API_URL}/api/auth/register`, testUser);
-    
+
     // Then login
     const response = await axios.post(`${API_URL}/api/auth/login`, {
       phone: testUser.phone,
@@ -203,30 +203,30 @@ async function testSocialPosts() {
     };
 
     const createResponse = await axios.post(
-      `${API_URL}/api/social/posts`,
+      `${API_URL}/api/posts`,
       newPost,
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
 
-    if (createResponse.data.post) {
-      const postId = createResponse.data.post.id;
+    if (createResponse.data.id) {
+      const postId = createResponse.data.id;
       logSuccess('Post created successfully');
       logInfo(`Post ID: ${postId}`);
 
       // Get feed
-      const feedResponse = await axios.get(`${API_URL}/api/social/feed`, {
+      const feedResponse = await axios.get(`${API_URL}/api/posts`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
-      if (Array.isArray(feedResponse.data.posts)) {
-        logSuccess(`Feed retrieved: ${feedResponse.data.posts.length} posts`);
+      if (Array.isArray(feedResponse.data.items)) {
+        logSuccess(`Feed retrieved: ${feedResponse.data.items.length} posts`);
       } else {
         logError('Get feed failed');
       }
 
       // Like the post
       const likeResponse = await axios.post(
-        `${API_URL}/api/social/posts/${postId}/like`,
+        `${API_URL}/api/posts/${postId}/like`,
         {},
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
@@ -293,18 +293,18 @@ async function testStudyContent() {
 
   try {
     // Get subjects
-    const subjectsResponse = await axios.get(`${API_URL}/api/study/subjects`, {
+    const subjectsResponse = await axios.get(`${API_URL}/api/subjects`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
 
     if (Array.isArray(subjectsResponse.data)) {
       logSuccess(`Retrieved ${subjectsResponse.data.length} subjects`);
-      
+
       // If there are subjects, get chapters for the first one
       if (subjectsResponse.data.length > 0) {
         const subjectId = subjectsResponse.data[0].id;
         const chaptersResponse = await axios.get(
-          `${API_URL}/api/study/subjects/${subjectId}/chapters`,
+          `${API_URL}/api/subjects/${subjectId}/chapters`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         );
 
@@ -352,7 +352,7 @@ async function runAllTests() {
   log('\n' + '='.repeat(60), colors.yellow);
   log('CHADCONNECT API TEST SUITE', colors.yellow);
   log('='.repeat(60) + '\n', colors.yellow);
-  
+
   logInfo(`Testing API at: ${API_URL}`);
   logInfo(`Starting tests at: ${new Date().toISOString()}\n`);
 
@@ -370,15 +370,15 @@ async function runAllTests() {
   log('\n' + '='.repeat(60), colors.yellow);
   log('TEST SUMMARY', colors.yellow);
   log('='.repeat(60), colors.yellow);
-  
+
   const total = testsPassed + testsFailed;
   log(`Total Tests: ${total}`, colors.cyan);
   log(`Passed: ${testsPassed}`, colors.green);
   log(`Failed: ${testsFailed}`, colors.red);
-  
+
   const percentage = total > 0 ? ((testsPassed / total) * 100).toFixed(2) : 0;
   log(`Success Rate: ${percentage}%`, colors.cyan);
-  
+
   log('='.repeat(60) + '\n', colors.yellow);
 
   // Exit code
