@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:better_player/better_player.dart';
+// import 'package:better_player/better_player.dart'; // Temporairement désactivé pour build APK
 
 import '../../../core/api/api_providers.dart';
 import '../../../core/auth/current_user_provider.dart';
@@ -126,7 +126,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   }
 }
 
-class _VideoPlayerCard extends ConsumerStatefulWidget {
+// Classe _VideoPlayerCard temporairement simplifiée pour build APK
+class _VideoPlayerCard extends StatelessWidget {
   const _VideoPlayerCard({
     required this.postId,
     required this.title,
@@ -142,105 +143,12 @@ class _VideoPlayerCard extends ConsumerStatefulWidget {
   final String? status;
 
   @override
-  ConsumerState<_VideoPlayerCard> createState() => _VideoPlayerCardState();
-}
-
-class _VideoPlayerCardState extends ConsumerState<_VideoPlayerCard> {
-  BetterPlayerController? _controller;
-
-  String get _kPosKey => 'video.last_position_ms.${widget.postId}';
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  @override
-  void didUpdateWidget(covariant _VideoPlayerCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.hlsUrl != widget.hlsUrl || oldWidget.status != widget.status) {
-      _disposeController();
-      _init();
-    }
-  }
-
-  Future<void> _init() async {
-    if (widget.status != 'ready' || widget.hlsUrl.isEmpty) {
-      setState(() => _controller = null);
-      return;
-    }
-
-    final prefs = ref.read(sharedPreferencesProvider);
-    final lastMs = prefs.getInt(_kPosKey) ?? 0;
-
-    final controller = BetterPlayerController(
-      BetterPlayerConfiguration(
-        aspectRatio: 16 / 9,
-        autoPlay: false,
-        fit: BoxFit.contain,
-        controlsConfiguration: const BetterPlayerControlsConfiguration(
-          enablePip: true,
-          enableFullscreen: true,
-          enablePlayPause: true,
-          enableProgressText: true,
-          enableSkips: true,
-        ),
-      ),
-      betterPlayerDataSource: BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network,
-        widget.hlsUrl,
-        videoFormat: BetterPlayerVideoFormat.hls,
-        cacheConfiguration: const BetterPlayerCacheConfiguration(useCache: true),
-        notificationConfiguration: BetterPlayerNotificationConfiguration(
-          showNotification: false,
-        ),
-      ),
-    );
-
-    if (lastMs > 0) {
-      controller.addEventsListener((event) async {
-        if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-          await controller.seekTo(Duration(milliseconds: lastMs));
-        }
-      });
-    }
-
-    controller.addEventsListener((event) async {
-      if (event.betterPlayerEventType == BetterPlayerEventType.progress) {
-        final p = controller.videoPlayerController?.value.position;
-        if (p != null) {
-          await prefs.setInt(_kPosKey, p.inMilliseconds);
-        }
-      }
-    });
-
-    if (!mounted) {
-      controller.dispose();
-      return;
-    }
-
-    setState(() => _controller = controller);
-  }
-
-  void _disposeController() {
-    _controller?.dispose();
-    _controller = null;
-  }
-
-  @override
-  void dispose() {
-    _disposeController();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final isReady = widget.status == 'ready' && widget.hlsUrl.isNotEmpty;
-    final isProcessing = widget.status == null || widget.status == 'processing';
+    final isReady = status == 'ready' && hlsUrl.isNotEmpty;
+    final isProcessing = status == null || status == 'processing';
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -254,7 +162,7 @@ class _VideoPlayerCardState extends ConsumerState<_VideoPlayerCard> {
                 Icon(Symbols.school_rounded, color: cs.primary),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(widget.title, style: theme.textTheme.titleMedium),
+                  child: Text(title, style: theme.textTheme.titleMedium),
                 ),
               ],
             ),
@@ -263,49 +171,58 @@ class _VideoPlayerCardState extends ConsumerState<_VideoPlayerCard> {
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: isReady && _controller != null
-                    ? BetterPlayer(controller: _controller!)
-                    : Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (widget.thumbUrl.isNotEmpty)
-                            Image.network(
-                              widget.thumbUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, _, __) {
-                                return Container(color: cs.surfaceContainerHighest);
-                              },
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (thumbUrl.isNotEmpty)
+                      Image.network(
+                        thumbUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, _, __) {
+                          return Container(color: cs.surfaceContainerHighest);
+                        },
+                      )
+                    else
+                      Container(color: cs.surfaceContainerHighest),
+                    Container(
+                      color: Colors.black.withOpacity(0.35),
+                    ),
+                    Center(
+                      child: isProcessing
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                ),
+                                const SizedBox(height: 10),
+                                Text('Traitement du cours…', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                              ],
                             )
-                          else
-                            Container(color: cs.surfaceContainerHighest),
-                          Container(
-                            color: Colors.black.withOpacity(0.35),
-                          ),
-                          Center(
-                            child: isProcessing
-                                ? Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text('Traitement du cours…', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
-                                    ],
-                                  )
-                                : Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.error_outline, color: Colors.white, size: 26),
-                                      const SizedBox(height: 10),
-                                      Text('Vidéo indisponible', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
-                                    ],
-                                  ),
-                          ),
-                        ],
-                      ),
+                          : isReady
+                              ? Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.play_circle_outline, color: Colors.white, size: 48),
+                                    const SizedBox(height: 10),
+                                    Text('Lecteur vidéo disponible dans la prochaine version',
+                                        textAlign: TextAlign.center,
+                                        style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.error_outline, color: Colors.white, size: 26),
+                                    const SizedBox(height: 10),
+                                    Text('Vidéo indisponible', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                                  ],
+                                ),
+                    ),
+                  ],
+                ),
               ),
             ),
             if (isProcessing) ...[
