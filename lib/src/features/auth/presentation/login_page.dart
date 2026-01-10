@@ -18,20 +18,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _obscurePassword = true;
 
   @override
-  void initState() {
-    super.initState();
-    ref.listen(authControllerProvider, (prev, next) {
-      if (!mounted) return;
-      if (!next.hasError) return;
-
-      final msg = next.error.toString();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
-    });
-  }
-
-  @override
   void dispose() {
     _phoneController.dispose();
     _passwordController.dispose();
@@ -51,6 +37,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final loading = auth.isLoading;
+
+    // Écouter les erreurs
+    ref.listen(authControllerProvider, (prev, next) {
+      if (!mounted) return;
+      if (!next.hasError) return;
+
+      final msg = next.error.toString();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.red),
+      );
+    });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Connexion')),

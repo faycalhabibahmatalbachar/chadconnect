@@ -19,20 +19,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _obscurePassword = true;
 
   @override
-  void initState() {
-    super.initState();
-    ref.listen(authControllerProvider, (prev, next) {
-      if (!mounted) return;
-      if (!next.hasError) return;
-
-      final msg = next.error.toString();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
-    });
-  }
-
-  @override
   void dispose() {
     _phoneController.dispose();
     _displayNameController.dispose();
@@ -54,6 +40,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final loading = auth.isLoading;
+
+    // Écouter les erreurs
+    ref.listen(authControllerProvider, (prev, next) {
+      if (!mounted) return;
+      if (!next.hasError) return;
+
+      final msg = next.error.toString();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.red),
+      );
+    });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Inscription')),
