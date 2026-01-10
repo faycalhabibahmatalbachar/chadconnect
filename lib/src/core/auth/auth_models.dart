@@ -30,7 +30,7 @@ class AuthUser {
     if (payload == null) return null;
 
     final sub = payload['sub'];
-    final id = int.tryParse(String(sub ?? ''));
+    final id = int.tryParse((sub ?? '').toString());
     if (id == null || id <= 0) return null;
 
     final roleRaw = payload['role'];

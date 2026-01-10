@@ -409,7 +409,7 @@ class _CommentsBlockState extends State<_CommentsBlock> {
   @override
   void initState() {
     super.initState();
-    _future = widget.repo.fetchCommentsForUser(postId: widget.post.id, userId: widget.currentUserId);
+    _future = widget.repo.fetchCommentsForUser(postId: widget.post.id);
   }
 
   @override
@@ -421,7 +421,7 @@ class _CommentsBlockState extends State<_CommentsBlock> {
   Future<void> _reload() async {
     if (!mounted) return;
     setState(() {
-      _future = widget.repo.fetchCommentsForUser(postId: widget.post.id, userId: widget.currentUserId);
+      _future = widget.repo.fetchCommentsForUser(postId: widget.post.id);
     });
   }
 
@@ -432,7 +432,7 @@ class _CommentsBlockState extends State<_CommentsBlock> {
 
     setState(() => _sending = true);
     try {
-      await widget.repo.addComment(postId: widget.post.id, userId: widget.currentUserId, body: body);
+      await widget.repo.addComment(postId: widget.post.id, body: body);
       widget.onCommentAdded();
       _textController.clear();
       await _reload();

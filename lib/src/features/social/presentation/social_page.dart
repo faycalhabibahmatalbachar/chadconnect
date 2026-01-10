@@ -417,7 +417,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
   @override
   void initState() {
     super.initState();
-    _future = widget.repo.fetchCommentsForUser(postId: widget.post.id, userId: widget.userId);
+    _future = widget.repo.fetchCommentsForUser(postId: widget.post.id);
   }
 
   @override
@@ -429,7 +429,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
   Future<void> _reload() async {
     if (!mounted) return;
     setState(() {
-      _future = widget.repo.fetchCommentsForUser(postId: widget.post.id, userId: widget.userId);
+      _future = widget.repo.fetchCommentsForUser(postId: widget.post.id);
     });
   }
 
@@ -469,14 +469,13 @@ class _CommentsSheetState extends State<_CommentsSheet> {
       if (_replyTo != null) {
         await widget.repo.replyToComment(
           postId: widget.post.id,
-          userId: widget.userId,
           parentCommentId: _replyTo!.id,
           body: body,
         );
         if (!mounted) return;
         setState(() => _replyTo = null);
       } else {
-        await widget.repo.addComment(postId: widget.post.id, userId: widget.userId, body: body);
+        await widget.repo.addComment(postId: widget.post.id, body: body);
       }
       widget.onCommentAdded();
       _textController.clear();
@@ -643,7 +642,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                                         } else if (value == 'report') {
                                           await _showReportCommentDialog(context, commentId: c.id);
                                         } else if (value == 'delete') {
-                                          await widget.repo.deleteComment(commentId: c.id, userId: widget.userId);
+                                          await widget.repo.deleteComment(commentId: c.id);
                                           if (!mounted) return;
                                           await _reload();
                                         }
@@ -676,9 +675,9 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                                     OutlinedButton(
                                       onPressed: () async {
                                         if (c.likedByMe) {
-                                          await widget.repo.unlikeComment(commentId: c.id, userId: widget.userId);
+                                          await widget.repo.unlikeComment(commentId: c.id);
                                         } else {
-                                          await widget.repo.likeComment(commentId: c.id, userId: widget.userId);
+                                          await widget.repo.likeComment(commentId: c.id);
                                         }
                                         if (!mounted) return;
                                         await _reload();
@@ -836,7 +835,6 @@ class _ReportPostDialogState extends State<_ReportPostDialog> {
     setState(() => _sending = true);
     try {
       await widget.repo.reportPost(
-        reporterUserId: widget.reporterUserId,
         postId: widget.postId,
         reason: reason,
         details: details,
@@ -927,7 +925,6 @@ class _ReportCommentDialogState extends State<_ReportCommentDialog> {
     setState(() => _sending = true);
     try {
       await widget.repo.reportComment(
-        reporterUserId: widget.reporterUserId,
         commentId: widget.commentId,
         reason: reason,
         details: details,

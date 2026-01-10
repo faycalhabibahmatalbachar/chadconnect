@@ -34,9 +34,9 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
 
     try {
       if (nextBookmarked) {
-        await repo.bookmarkPost(postId: postId, userId: userId);
+        await repo.bookmarkPost(postId: postId);
       } else {
-        await repo.unbookmarkPost(postId: postId, userId: userId);
+        await repo.unbookmarkPost(postId: postId);
       }
     } catch (_) {
       state = AsyncValue.data(current);
@@ -95,9 +95,9 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
 
     try {
       if (nextReaction == null) {
-        await repo.removeReaction(postId: postId, userId: userId);
+        await repo.removeReaction(postId: postId);
       } else {
-        await repo.setReaction(postId: postId, userId: userId, reaction: nextReaction);
+        await repo.setReaction(postId: postId, reaction: nextReaction);
       }
     } catch (_) {
       state = AsyncValue.data(current);
@@ -110,7 +110,7 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
     final userId = ref.read(currentUserIdProvider);
 
     try {
-      final posts = await repo.fetchPosts(userId: userId);
+      final posts = await repo.fetchPosts();
       state = AsyncValue.data(posts);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -136,7 +136,6 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
 
     try {
       await repo.createPost(
-        userId: userId,
         body: trimmed,
         mediaUrl: mediaUrl,
         mediaKind: mediaKind,
@@ -144,7 +143,7 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
         mediaName: mediaName,
         mediaSizeBytes: mediaSizeBytes,
       );
-      final posts = await repo.fetchPosts(userId: userId);
+      final posts = await repo.fetchPosts();
       state = AsyncValue.data(posts);
     } catch (e, st) {
       state = prev;
@@ -172,9 +171,9 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
 
     try {
       if (nextLiked) {
-        await repo.likePost(postId: postId, userId: userId);
+        await repo.likePost(postId: postId);
       } else {
-        await repo.unlikePost(postId: postId, userId: userId);
+        await repo.unlikePost(postId: postId);
       }
     } catch (_) {
       state = AsyncValue.data(current);
@@ -208,7 +207,7 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
     state = AsyncValue.data(optimistic);
 
     try {
-      await repo.deletePost(postId: postId, userId: userId);
+      await repo.deletePost(postId: postId);
     } catch (_) {
       state = AsyncValue.data(current);
     }
@@ -256,8 +255,8 @@ class SocialFeedController extends Notifier<AsyncValue<List<SocialPost>>> {
     state = AsyncValue.data(optimistic);
 
     try {
-      await repo.updatePost(postId: postId, userId: userId, body: trimmed);
-      final posts = await repo.fetchPosts(userId: userId);
+      await repo.updatePost(postId: postId, body: trimmed);
+      final posts = await repo.fetchPosts();
       state = AsyncValue.data(posts);
     } catch (_) {
       state = AsyncValue.data(prev);
