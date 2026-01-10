@@ -52,6 +52,38 @@ router.get('/study/catalog', asyncHandler(async (req, res) => {
   res.json({ items: Array.from(bySubject.values()) });
 }));
 
+// Routes simples pour compatibilité avec les clients
+router.get('/subjects', asyncHandler(async (req, res) => {
+  const { pool } = req.app.locals;
+
+  const [rows] = await pool.query(
+    `SELECT id, name_fr AS name, track, created_at
+     FROM subjects
+     ORDER BY id ASC`,
+  );
+
+  res.json(rows);
+}));
+
+router.get('/subjects/:subjectId/chapters', asyncHandler(async (req, res) => {
+  const { pool } = req.app.locals;
+  const subjectId = asInt(req.params.subjectId, 0);
+
+  if (!subjectId) {
+    return res.status(400).json({ error: 'Invalid subject ID' });
+  }
+
+  const [rows] = await pool.query(
+    `SELECT id, subject_id, title_fr AS title, sort_order
+     FROM chapters
+     WHERE subject_id = ?
+     ORDER BY sort_order ASC, id ASC`,
+    [subjectId],
+  );
+
+  res.json(rows);
+}));
+
 router.get('/study/state', asyncHandler(async (req, res) => {
   const { pool } = req.app.locals;
   const userId = Math.max(asInt(req.user && req.user.id, 0), 0);

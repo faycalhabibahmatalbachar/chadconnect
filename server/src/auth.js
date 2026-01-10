@@ -301,7 +301,7 @@ router.get('/auth/me', requireAuth, asyncHandler(async (req, res) => {
     [userId],
   );
 
-  res.json(rows && rows[0] ? rows[0] : null);
+  res.json({ user: rows && rows[0] ? rows[0] : null });
 }));
 
 module.exports = {
