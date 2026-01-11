@@ -7,12 +7,12 @@ const fs = require('fs');
 const path = require('path');
 
 const config = {
-    host: 'centerbeam.proxy.rlwy.net',
-    port: 50434,
-    user: 'root',
-    password: 'atKzKjEakYCsiPVQjUYeppMRCFUQWTaf',
-    database: 'railway',
-    multipleStatements: true
+    host: process.env.MYSQL_HOST,
+    port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    multipleStatements: true,
 };
 
 async function importSchema() {

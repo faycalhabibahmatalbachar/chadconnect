@@ -66,6 +66,8 @@ app.use((err, req, res, next) => {
 
   const status = err && (err.code === 'ECONNREFUSED' || err.code === 'PROTOCOL_CONNECTION_LOST')
     ? 503
+    : err && err.code === 'VIDEO_QUEUE_DISABLED'
+      ? 503
     : err && err.code === 'UNSUPPORTED_MEDIA_TYPE'
       ? 415
       : err && err.code === 'LIMIT_FILE_SIZE'
