@@ -33,8 +33,8 @@ class PushBootstrap {
 
     _authSub?.close();
     _authSub = _ref.listen(authControllerProvider, (prev, next) {
-      final wasAuthed = prev?.valueOrNull != null;
-      final isAuthed = next.valueOrNull != null;
+      final wasAuthed = prev is AsyncData && prev.value != null;
+      final isAuthed = next is AsyncData && next.value != null;
       if (!wasAuthed && isAuthed) {
         Future(() async {
           try {
@@ -72,7 +72,9 @@ class PushBootstrap {
   }
 
   Future<void> _registerToken(String token) async {
-    final session = _ref.read(authControllerProvider).valueOrNull;
+    final authState = _ref.read(authControllerProvider);
+    if (authState is! AsyncData) return;
+    final session = authState.value;
     if (session == null) return;
     final repo = _ref.read(pushRepositoryProvider);
 

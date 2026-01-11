@@ -13,7 +13,12 @@ class AuthController extends Notifier<AsyncValue<AuthSession?>> {
     return const AsyncValue.loading();
   }
 
-  AuthSession? get session => state.valueOrNull;
+  AuthSession? get session {
+    if (state is AsyncData<AuthSession?>) {
+      return (state as AsyncData<AuthSession?>).value;
+    }
+    return null;
+  }
 
   bool get isAuthenticated => session != null;
 

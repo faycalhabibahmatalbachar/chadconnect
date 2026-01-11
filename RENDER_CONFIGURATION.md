@@ -1,0 +1,104 @@
+# Configuration Render.com pour ChadConnect
+
+## ⚠️ IMPORTANT: Variables d'environnement à configurer
+
+Le déploiement sur Render nécessite la configuration des variables d'environnement Railway, Supabase et Firebase.
+
+---
+
+## 📋 Variables à configurer sur Render.com
+
+Allez sur https://dashboard.render.com → Votre service `chadconnect-api` → Environment
+
+### 1️⃣ Base de données Railway
+
+```
+MYSQL_HOST=centerbeam.proxy.rlwy.net
+MYSQL_PORT=50434
+MYSQL_USER=root
+MYSQL_PASSWORD=atKzKjEakYCsiPVQjUYeppMRCFUQWTaf
+MYSQL_DATABASE=railway
+```
+
+### 2️⃣ Supabase Storage
+
+```
+SUPABASE_URL=https://karymcppcwnjybtebqsm.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthcnltY3BwY3duanlidGVicXNtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Nzk4MDk4MiwiZXhwIjoyMDgzNTU2OTgyfQ.8KNLF9lgt46hvfgHp_vQO5uR_rgGgDFANDAABVcLCJE
+SUPABASE_STORAGE_BUCKET=chadconnect
+```
+
+### 3️⃣ Firebase Admin SDK
+
+```
+FIREBASE_SERVICE_ACCOUNT_BASE64=ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiY2hhZGNvbm5lY3QtMjE3YTgiLAogICJwcml2YXRlX2tleV9pZCI6ICI5ODY2MWNmNDMzMGE2YjFkODM3MjRkNjU3ODdlZjliNjQ5MTBmYWM2IiwKICAicHJpdmF0ZV9rZXkiOiAiLS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tXG5NSUlFdlFJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLY3dnZ1NqQWdFQUFvSUJBUURwSkdKSTI4cXF6SUJ1XG5SSmM2a3RNWDF2ZG9CNlRBbitDSXpUMisva2NaeWRkTnFBT3orZGtlbEl6czdJUlZud0lCdERCLzVRWmtLeVhnXG5oVGdkOGxYdElSUjgzdUdPVWgrZ3d6dnFlV1N4aWNZaGQvazFFUWhrcDEzR0Q3T1RmK21LS3FsVHN1bTNtTUx0XG5oV3hDZkpTcHBOZUZKQ2tveHFFZ2VIcyttTGYzZmN5VHZKSDNyTWJaenpoaEx0U3lTNGU0d2ZJRnQyaEc2dTd1XG5MK2xrNXRtc1Uvb3FvTWYzczdTU1VCbU80SmtZNnVHVXVJSzJPdGo4S2FYMlhkcWpvT3BnK3hEMy8xZlJjWFdBXG56cEJ0V3h3UG5uZzEzR1o5c2VFNlVyMU1NeHZmMHFTTmJRdEJBbmw0bExqZ0JidDZMTWxJRUVFTHI3cm1SVGFWXG5XbnRPQkpsaEFnTUJBQUVDZ2dFQUwrbTZ5eWRrWUxLVGFGWHZVR25ST1JLRUdOeU5Sc3IwalpqRWFrWituVFdtXG5hajZ2dUNLT05PTXBqUjFVV3ZaSkpzbDl1Q0w4cThSVVRlNkM2R0NmdVJKMXorM01KQUFMb1BIT2svTHJ0ekxOXG54WjRPMkpHT0RJVjYxNVB0ZjFBbjBpM1BTN1MycEhVZ0JrbEh4T2d1Y3lpOTVBNVk2UmpkRHp2RGRFdFZiMmFHXG5JS3VWWmFlZkt4SkFIWjBXQkt5eUlYd3JJNEZqbGViNGZuVnZFZjVCOWJXNCtUdzVmaGx1MFVKdjE0YTFHblByXG5FMkFQQ1lENWVlWjhZUmVjMC8zbmJLbmZiWWl6SlZLR1hrbEdPQ0hHT3hHWHg1ZjdiK1p5ZU1MVTBuU29XQmI5XG56VE1qNjRlMk1EQnVrQ0lPWE5zZmVZR09xOEtDMnNiOEc0Znh0M0MzZXdLQmdRRDRzWFRrUFpMd0ttWG1Dbng3XG5wVzBHWGtkOHRNd2xrWTFjcWlEKzRLLzVaWDQ4WDNFM0RMUkNxanZlbVRFc09INzlwOGhianhEcFNWOUQ4MlVoXG5PU29QSTVocEZPTm5YU0hCcVd3N2xHVVJ5aEYyenN1VmppWFNueVY2MFBrSzlGeHNFQ3NEbzJKZmRsb2gvN2YyXG5RV2VFb1QydFFVOXFnb2xBWVlrMGovWVhxd0tCZ1FEdi9mWExPTVphTTkvN0ViU3U2UzNKMm5mSkR4c0xFWXBZXG5WVGttVitidXBaZW85bVVwa2F5a0k2U2k3aStaUVhRUUhLbTBPVnp6eS82MjFJdmU5QTNHckM3UHhwaUNnWkRSXG5aRTAyMWpTRkQ5bFhlN0Z5UmFTV296WU1pdXJ4UkpTcHRsUVlDMWUxUlphbjd4dTBpUFp6NjU1eVJrenFOZFdwXG5iQXkxSHIwWEl3S0JnQ29vdXk0dUdnakl4emwyTWFBc2JRMFZVbjBia1RnVk1xZXcxNk1kcC9kWmMwcjh5dzZRXG5Bc2NDWU4vZGpHNTRyVjZHNFBwVWlJTmp3dGljSEZyRGZCUFE3dmR4YVJPT3dEZzZablM3TlY4TXFHVkJyVldQXG5JVzVST0dOWHBjQnJxSGRSVGxseGl5MnZ2SnZpNCtiRk02MVNRRWhzdCsvUWJVQVN5TlcyU2Z1OUFvR0FTcjlTXG5tdVVvQWxnOTNyajVDYkZlcll2NTJ3bDFadEVqd2JkcGdXUEhiWFR0ODVZcWsvUG5UWWc4Y3ZLMHFJc1dWeDVXXG5UT2ZBNTc0VnEyUXYzRlV2SlQzanBwczRUUTJGeVhId0NyQlUwMHpJYU5NQnhaR2pYYmVmMGZCQ2xMckRnc2hqXG5FTW9YbTBIOVZuakdyRWdzV3BaOFZ5TkdPWHhpKzgzSGQzSUhldmtDZ1lFQXdLekt1YUtmL0t4anlTRXVOYnVnXG4yODdWQVJIcHdFVlNpMUx3eUpFWGFkdzNNNjB2a0xIRUcvTkRyRnhLZXoySjJheEpDcnFvL3hZSXhoTzMyUlU1XG5XVFZQUHRFVjBPZzR4cjhSZ20yQ2NFQm1wM3VzWmh2VWFGOWxra09KclhXQXZrUWxDdHVUSWEwVG1aaEdjYlk4XG5EL0llT2JNUWwwSk9tNUFFSFdQRWEvdz1cbi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS1cbiIsCiAgImNsaWVudF9lbWFpbCI6ICJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BjaGFkY29ubmVjdC0yMTdhOC5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsCiAgImNsaWVudF9pZCI6ICIxMTA4OTA1MTk0MjY0ODQ1ODcxMzEiLAogICJhdXRoX3VyaSI6ICJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20vby9vYXV0aDIvYXV0aCIsCiAgInRva2VuX3VyaSI6ICJodHRwczovL29hdXRoMi5nb29nbGVhcGlzLmNvbS90b2tlbiIsCiAgImF1dGhfcHJvdmlkZXJfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9vYXV0aDIvdjEvY2VydHMiLAogICJjbGllbnRfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9yb2JvdC92MS9tZXRhZGF0YS94NTA5L2ZpcmViYXNlLWFkbWluc2RrLWZic3ZjJTQwY2hhZGNvbm5lY3QtMjE3YTguaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJ1bml2ZXJzZV9kb21haW4iOiAiZ29vZ2xlYXBpcy5jb20iCn0K
+FIREBASE_STORAGE_BUCKET=chadconnect-217a8.firebasestorage.app
+```
+
+### 4️⃣ JWT Configuration
+
+```
+JWT_SECRET=chadconnect_secret_key_very_long_and_secure_2026
+JWT_ACCESS_TTL_SECONDS=900
+JWT_REFRESH_TTL_DAYS=30
+```
+
+### 5️⃣ Autres variables
+
+```
+NODE_ENV=production
+PORT=3001
+CORS_ORIGINS=https://chadconnect.onrender.com
+MAX_VIDEO_SIZE_BYTES=1073741824
+FFMPEG_PATH=/usr/bin/ffmpeg
+FFPROBE_PATH=/usr/bin/ffprobe
+```
+
+---
+
+## 🔧 Étapes de configuration
+
+1. **Aller sur Render Dashboard**
+   - https://dashboard.render.com
+
+2. **Sélectionner le service `chadconnect-api`**
+
+3. **Aller dans Environment**
+
+4. **Copier-coller toutes les variables ci-dessus**
+
+5. **Sauvegarder et redéployer**
+   - Le service se redéploiera automatiquement
+
+---
+
+## ✅ Vérification
+
+Après le redéploiement, testez:
+
+```bash
+curl https://chadconnect.onrender.com/health
+```
+
+Devrait retourner:
+```json
+{"ok": true}
+```
+
+---
+
+## 🔗 Liens utiles
+
+- **Render Dashboard**: https://dashboard.render.com
+- **Railway Dashboard**: https://railway.app/dashboard
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/karymcppcwnjybtebqsm
+- **Firebase Console**: https://console.firebase.google.com/project/chadconnect-217a8
+
+---
+
+## 📝 Notes
+
+- Les variables sont déjà configurées localement dans `server/.env`
+- Railway MySQL est accessible depuis internet (centerbeam.proxy.rlwy.net:50434)
+- Supabase et Firebase sont configurés avec les bons credentials
+- Le serveur Render doit utiliser ces mêmes credentials pour fonctionner
