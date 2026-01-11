@@ -13,7 +13,7 @@ String _defaultBaseUrl() {
   // Switch entre local et Render
   if (USE_LOCAL) {
     // 10.0.2.2 = localhost depuis l'émulateur Android
-    return 'http://10.0.2.2:3000';
+    return 'http://10.0.2.2:3001';
   } else {
     // API hébergée sur Render (service API)
     return 'https://chadconnect-api.onrender.com';

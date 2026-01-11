@@ -53,10 +53,17 @@ app.*.map.json
 /server/secret/firebase-service-account.json
 /server/secret/*.pem
 
+/server/firebase_base64.txt
+/server/NUL
+
 /server/uploads/
 /tools/redis/
 /android/build/
 /android/.gradle/
+
+/token.txt
+/test_token.txt
+/auth_response.json
 
 /admin_web/.next/
 /admin_web/out/

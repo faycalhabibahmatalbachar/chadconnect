@@ -20,7 +20,10 @@ function parseCorsOrigins() {
   const raw = process.env.CORS_ORIGINS;
   if (!raw) return [];
 
-  return String(raw)
+  const trimmed = String(raw).trim();
+  if (trimmed === '*') return ['*'];
+
+  return trimmed
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
@@ -32,6 +35,7 @@ app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
     if (corsOrigins.length === 0) return cb(null, true);
+    if (corsOrigins.includes('*')) return cb(null, true);
     return cb(null, corsOrigins.includes(origin));
   },
 }));

@@ -14,8 +14,8 @@ services:
       - key: PORT
         value: 3001
       - key: CORS_ORIGINS
-        generateValue: true
-        # À remplir manuellement après déploiement avec l'URL de l'admin web
+        value: "*"
+        # Optionnel: remplacer par une liste CSV d'origines autorisées (ex: https://votre-admin.onrender.com)
       - key: MYSQL_HOST
         sync: false
         # À configurer avec votre base de données MySQL externe

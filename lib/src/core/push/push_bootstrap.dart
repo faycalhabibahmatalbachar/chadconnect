@@ -17,6 +17,7 @@ class PushBootstrap {
   ProviderSubscription? _authSub;
 
   Future<void> init() async {
+    if (kIsWeb) return;
     if (defaultTargetPlatform != TargetPlatform.android) return;
     await Permission.notification.request();
 
