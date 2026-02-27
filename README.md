@@ -261,9 +261,10 @@ Ce projet est sous licence propriétaire. Tous droits réservés.
 
 ## 📞 Support
 
-Pour toute question ou problème:
+Pour toute question, ou contribution:
 - GitHub Issues: [chadconnect/issues](https://github.com/faycalhabibahmatalbachar/chadconnect/issues)
-- Email: support@chadconnect.com
+- Email: faycalhabibahmat@gmail.com
+- Tel: (+235) 68663737/91912191
 
 ## 🙏 Remerciements
 
@@ -274,5 +275,5 @@ Pour toute question ou problème:
 
 ---
 
-**Fait avec ❤️ pour l'éducation au Tchad** 🇹🇩
+**Developpé avec ❤️ pour l'éducation de notre cher pays, le Tchad**
 
