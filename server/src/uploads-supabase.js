@@ -30,6 +30,94 @@ function asInt(v, fallback) {
   return Math.trunc(n);
 }
 
+// Helper to detect file type from mimetype
+function getFileKind(mimetype) {
+  if (mimetype.startsWith('image/')) return 'image';
+  if (mimetype === 'application/pdf') return 'document';
+  if (mimetype.startsWith('video/')) return 'video';
+  return 'file';
+}
+
+// Helper to get folder and endpoint from kind
+function getUploadConfig(kind) {
+  switch (kind) {
+    case 'image':
+      return { folder: 'images', allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] };
+    case 'document':
+      return { folder: 'documents', allowedTypes: ['application/pdf'] };
+    case 'video':
+      return { folder: 'videos', allowedTypes: ['video/mp4', 'video/webm', 'video/quicktime'] };
+    default:
+      return { folder: 'files', allowedTypes: null };
+  }
+}
+
+// POST /uploads - Generic upload endpoint (auto-detects file type)
+router.post('/uploads', requireAuth, upload.single('file'), asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const userId = Math.max(asInt(req.user && req.user.id, 0), 0);
+  if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+  const kind = getFileKind(req.file.mimetype);
+  const config = getUploadConfig(kind);
+
+  // Validate file type if restrictions exist
+  if (config.allowedTypes && !config.allowedTypes.includes(req.file.mimetype)) {
+    return res.status(400).json({ 
+      error: `Invalid file type for ${kind}. Allowed: ${config.allowedTypes.join(', ')}` 
+    });
+  }
+
+  // Generate unique filename
+  const ext = path.extname(req.file.originalname) || '';
+  const filename = `${config.folder}/${userId}/${Date.now()}${ext}`;
+
+  // Upload to Supabase Storage
+  const { data, error } = await supabase.storage
+    .from('uploads')
+    .upload(filename, req.file.buffer, {
+      contentType: req.file.mimetype,
+      upsert: false,
+    });
+
+  if (error) {
+    console.error('Upload error:', error);
+    return res.status(500).json({ error: 'Failed to upload file' });
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from('uploads')
+    .getPublicUrl(filename);
+
+  // For videos, create upload record
+  if (kind === 'video') {
+    const uploadId = require('crypto').randomUUID();
+    await supabase
+      .from('video_uploads')
+      .insert({
+        user_id: userId,
+        upload_id: uploadId,
+        original_path: filename,
+        original_mime: req.file.mimetype,
+        original_size_bytes: req.file.size,
+        status: 'uploaded',
+      });
+  }
+
+  res.status(201).json({
+    url: urlData.publicUrl,
+    path: filename,
+    kind: kind,
+    mime: req.file.mimetype,
+    original_name: req.file.originalname,
+    size_bytes: req.file.size,
+  });
+}));
+
 // POST /uploads/image - Upload an image
 router.post('/uploads/image', requireAuth, upload.single('file'), asyncHandler(async (req, res) => {
   if (!req.file) {
