@@ -15,6 +15,9 @@ const { socialRouter } = require('./social-supabase');
 const { socialExtrasRouter } = require('./socialExtras-supabase');
 const { studyRouter } = require('./study-supabase');
 const { reviewRouter } = require('./review-supabase');
+const { institutionsRouter } = require('./institutions-supabase');
+const { planningRouter } = require('./planning-supabase');
+const { uploadsRouter } = require('./uploads-supabase');
 
 const app = express();
 
@@ -137,6 +140,22 @@ app.get('/', (req, res) => {
       'POST /review/initialize',
       'POST /review/suspend',
       'POST /review/resume',
+      'GET /institutions',
+      'POST /institutions',
+      'PATCH /institutions/:id/status',
+      'GET /institutions/:id/classes',
+      'POST /institutions/:id/classes',
+      'GET /classes/:id/members',
+      'POST /classes/:id/join',
+      'DELETE /classes/:id/leave',
+      'GET /planning/goals',
+      'POST /planning/goals',
+      'PATCH /planning/goals/:id',
+      'DELETE /planning/goals/:id',
+      'POST /uploads/image',
+      'POST /uploads/document',
+      'POST /uploads/video',
+      'DELETE /uploads/:path',
     ],
   });
 });
@@ -157,6 +176,15 @@ app.use('/api', optionalAuth, studyRouter);
 
 // Review routes
 app.use('/api', optionalAuth, reviewRouter);
+
+// Institutions routes
+app.use('/api', optionalAuth, institutionsRouter);
+
+// Planning routes
+app.use('/api', optionalAuth, planningRouter);
+
+// Uploads routes
+app.use('/api', optionalAuth, uploadsRouter);
 
 // ==================== ERROR HANDLING ====================
 
