@@ -39,11 +39,11 @@ Render déploiera automatiquement.
 
 ```powershell
 # Health check
-Invoke-RestMethod -Uri https://chadconnect-api.onrender.com/health
+Invoke-RestMethod -Uri https://chadconnect-api-vmwt.onrender.com/health
 
 # Inscription
 $body = '{"phone":"+23512345678","display_name":"Test User","password":"password123"}'
-Invoke-RestMethod -Uri https://chadconnect-api.onrender.com/api/auth/register -Method POST -Body $body -ContentType "application/json"
+Invoke-RestMethod -Uri https://chadconnect-api-vmwt.onrender.com/api/auth/register -Method POST -Body $body -ContentType "application/json"
 ```
 
 ---
