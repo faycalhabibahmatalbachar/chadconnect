@@ -119,52 +119,53 @@ router.get('/users/:userId/followers', asyncHandler(async (req, res) => {
 
   const { data: follows, error } = await supabase
     .from('user_follows')
-    .select(`
-      follower_id,
-      created_at,
-      users!user_follows_follower_id_fkey (
-        id,
-        display_name,
-        username,
-        avatar_url,
-        bio,
-        followers_count,
-        following_count,
-        posts_count
-      )
-    `)
+    .select('follower_id, created_at')
     .eq('following_id', userId)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
 
+  const followerIds = (follows || []).map(f => f.follower_id).filter(Boolean);
+
+  // Fetch users separately
+  const { data: users } = await supabase
+    .from('users')
+    .select('id, display_name, username, avatar_url, bio, followers_count, following_count, posts_count')
+    .in('id', followerIds);
+
+  const usersMap = {};
+  (users || []).forEach(u => {
+    usersMap[u.id] = u;
+  });
+
   // Check if viewer follows each user
-  const followerIds = (follows || []).map(f => f.follower_id);
   let viewerFollowing = new Set();
-  
   if (viewerUserId && followerIds.length > 0) {
     const { data: viewerFollows } = await supabase
       .from('user_follows')
       .select('following_id')
       .eq('follower_id', viewerUserId)
       .in('following_id', followerIds);
-    
+
     viewerFollowing = new Set((viewerFollows || []).map(f => f.following_id));
   }
 
-  const items = (follows || []).map(f => ({
-    id: f.users?.id,
-    display_name: f.users?.display_name,
-    username: f.users?.username,
-    avatar_url: f.users?.avatar_url,
-    bio: f.users?.bio,
-    followers_count: f.users?.followers_count || 0,
-    following_count: f.users?.following_count || 0,
-    posts_count: f.users?.posts_count || 0,
-    is_following: viewerFollowing.has(f.follower_id),
-    followed_at: f.created_at,
-  }));
+  const items = (follows || []).map(f => {
+    const user = usersMap[f.follower_id];
+    return {
+      id: user?.id || f.follower_id,
+      display_name: user?.display_name || null,
+      username: user?.username || null,
+      avatar_url: user?.avatar_url || null,
+      bio: user?.bio || null,
+      followers_count: user?.followers_count || 0,
+      following_count: user?.following_count || 0,
+      posts_count: user?.posts_count || 0,
+      is_following: viewerFollowing.has(f.follower_id),
+      followed_at: f.created_at,
+    };
+  });
 
   res.json({ items });
 }));
@@ -181,38 +182,41 @@ router.get('/users/:userId/following', asyncHandler(async (req, res) => {
 
   const { data: follows, error } = await supabase
     .from('user_follows')
-    .select(`
-      following_id,
-      created_at,
-      users!user_follows_following_id_fkey (
-        id,
-        display_name,
-        username,
-        avatar_url,
-        bio,
-        followers_count,
-        following_count,
-        posts_count
-      )
-    `)
+    .select('following_id, created_at')
     .eq('follower_id', userId)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
 
-  const items = (follows || []).map(f => ({
-    id: f.users?.id,
-    display_name: f.users?.display_name,
-    username: f.users?.username,
-    avatar_url: f.users?.avatar_url,
-    bio: f.users?.bio,
-    followers_count: f.users?.followers_count || 0,
-    following_count: f.users?.following_count || 0,
-    posts_count: f.users?.posts_count || 0,
-    is_following: true,
-    followed_at: f.created_at,
-  }));
+  const followingIds = (follows || []).map(f => f.following_id).filter(Boolean);
+
+  // Fetch users separately
+  const { data: users } = await supabase
+    .from('users')
+    .select('id, display_name, username, avatar_url, bio, followers_count, following_count, posts_count')
+    .in('id', followingIds);
+
+  const usersMap = {};
+  (users || []).forEach(u => {
+    usersMap[u.id] = u;
+  });
+
+  const items = (follows || []).map(f => {
+    const user = usersMap[f.following_id];
+    return {
+      id: user?.id || f.following_id,
+      display_name: user?.display_name || null,
+      username: user?.username || null,
+      avatar_url: user?.avatar_url || null,
+      bio: user?.bio || null,
+      followers_count: user?.followers_count || 0,
+      following_count: user?.following_count || 0,
+      posts_count: user?.posts_count || 0,
+      is_following: true,
+      followed_at: f.created_at,
+    };
+  });
 
   res.json({ items });
 }));
@@ -282,8 +286,7 @@ router.get('/feed', requireAuth, asyncHandler(async (req, res) => {
       video_hls_url,
       video_variants_json,
       tags_json,
-      created_at,
-      users!posts_user_id_fkey (id, display_name, avatar_url)
+      created_at
     `)
     .in('user_id', followingIds)
     .eq('status', 'published')
@@ -292,27 +295,42 @@ router.get('/feed', requireAuth, asyncHandler(async (req, res) => {
 
   if (error) throw error;
 
-  const items = (posts || []).map(post => ({
-    id: post.id,
-    user_id: post.user_id,
-    user_display_name: post.users?.display_name || null,
-    user_avatar_url: post.users?.avatar_url || null,
-    body: post.body,
-    media_url: post.media_url,
-    media_kind: post.media_kind,
-    media_mime: post.media_mime,
-    media_name: post.media_name,
-    media_size_bytes: post.media_size_bytes,
-    video_status: post.video_status,
-    video_duration_ms: post.video_duration_ms,
-    video_width: post.video_width,
-    video_height: post.video_height,
-    video_thumb_url: post.video_thumb_url,
-    video_hls_url: post.video_hls_url,
-    video_variants_json: post.video_variants_json,
-    tags_json: post.tags_json,
-    created_at: post.created_at,
-  }));
+  // Fetch users separately
+  const postUserIds = [...new Set((posts || []).map(p => p.user_id))].filter(Boolean);
+  const { data: users } = await supabase
+    .from('users')
+    .select('id, display_name, avatar_url')
+    .in('id', postUserIds);
+
+  const usersMap = {};
+  (users || []).forEach(u => {
+    usersMap[u.id] = u;
+  });
+
+  const items = (posts || []).map(post => {
+    const user = usersMap[post.user_id];
+    return {
+      id: post.id,
+      user_id: post.user_id,
+      user_display_name: user?.display_name || null,
+      user_avatar_url: user?.avatar_url || null,
+      body: post.body,
+      media_url: post.media_url,
+      media_kind: post.media_kind,
+      media_mime: post.media_mime,
+      media_name: post.media_name,
+      media_size_bytes: post.media_size_bytes,
+      video_status: post.video_status,
+      video_duration_ms: post.video_duration_ms,
+      video_width: post.video_width,
+      video_height: post.video_height,
+      video_thumb_url: post.video_thumb_url,
+      video_hls_url: post.video_hls_url,
+      video_variants_json: post.video_variants_json,
+      tags_json: post.tags_json,
+      created_at: post.created_at,
+    };
+  });
 
   res.json({ items, total: items.length });
 }));

@@ -132,7 +132,7 @@ router.get('/posts', asyncHandler(async (req, res) => {
   const offset = Math.max(asInt(req.query.offset, 0), 0);
   const viewerUserId = req.user && req.user.id ? Math.max(asInt(req.user.id, 0), 0) : 0;
 
-  // Fetch posts with user info
+  // Fetch posts
   const { data: posts, error } = await supabase
     .from('posts')
     .select(`
@@ -155,8 +155,7 @@ router.get('/posts', asyncHandler(async (req, res) => {
       video_variants_json,
       tags_json,
       status,
-      created_at,
-      users!posts_user_id_fkey (id, display_name)
+      created_at
     `)
     .eq('status', 'published')
     .order('created_at', { ascending: false })
@@ -169,6 +168,18 @@ router.get('/posts', asyncHandler(async (req, res) => {
   }
 
   const postIds = posts.map(p => p.id);
+  const userIds = [...new Set(posts.map(p => p.user_id))].filter(Boolean);
+
+  // Fetch users separately
+  const { data: users } = await supabase
+    .from('users')
+    .select('id, display_name, avatar_url')
+    .in('id', userIds);
+
+  const usersMap = {};
+  (users || []).forEach(u => {
+    usersMap[u.id] = u;
+  });
 
   // Fetch counts and user interactions in parallel
   const [reactionCounts, commentCounts, bookmarkCounts, userInteractions] = await Promise.all([
@@ -182,11 +193,13 @@ router.get('/posts', asyncHandler(async (req, res) => {
   const items = posts.map(post => {
     const counts = reactionCounts[post.id] || { total: 0, like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
     const userReaction = userInteractions.reactions[post.id];
+    const user = usersMap[post.user_id];
     
     return {
       id: post.id,
       user_id: post.user_id,
-      user_display_name: post.users?.display_name || null,
+      user_display_name: user?.display_name || null,
+      user_avatar_url: user?.avatar_url || null,
       institution_id: post.institution_id,
       class_id: post.class_id,
       body: post.body,
