@@ -1,4 +1,11 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config({ override: process.env.NODE_ENV !== 'production' });
+
+// Use Supabase if SUPABASE_URL is configured
+if (process.env.SUPABASE_URL) {
+  require('./index-supabase.js');
+  return;
+}
 
 const cors = require('cors');
 const express = require('express');
@@ -7,10 +14,13 @@ const { pool } = require('./db');
 const { authRouter, optionalAuth } = require('./auth');
 const { uploadsRouter } = require('./uploads');
 const { socialRouter } = require('./social');
+const { socialExtrasRouter } = require('./socialExtras');
 const { pushRouter } = require('./push');
 const { institutionsRouter } = require('./institutions');
 const { planningRouter } = require('./planning');
 const { studyRouter } = require('./study');
+const { reviewRouter } = require('./review');
+const { limiters, validators } = require('./middleware');
 
 const app = express();
 
@@ -40,6 +50,15 @@ app.use(cors({
   },
 }));
 app.use(express.json({ limit: '1mb' }));
+
+// Apply general rate limiting to all API routes
+app.use('/api', limiters.general);
+
+// Apply pagination validation to all list endpoints
+app.use('/api/posts', validators.pagination);
+app.use('/api/users', validators.pagination);
+app.use('/api/search', validators.pagination);
+
 app.use(optionalAuth);
 
 app.get('/health', async (req, res) => {
@@ -54,10 +73,12 @@ app.get('/health', async (req, res) => {
 app.use('/api', authRouter);
 app.use('/api', uploadsRouter);
 app.use('/api', socialRouter);
+app.use('/api', socialExtrasRouter);
 app.use('/api', pushRouter);
 app.use('/api', institutionsRouter);
 app.use('/api', planningRouter);
 app.use('/api', studyRouter);
+app.use('/api', reviewRouter);
 
 app.use((err, req, res, next) => {
   // eslint-disable-next-line no-console
@@ -79,4 +100,13 @@ app.use((err, req, res, next) => {
 const port = Number(process.env.PORT ?? 3001);
 app.listen(port, () => {
   process.stdout.write(`ChadConnect API listening on port ${port}\n`);
+
+  (async () => {
+    try {
+      const [[row]] = await pool.query('SELECT DATABASE() AS db');
+      process.stdout.write(`MySQL database: ${row?.db ?? 'unknown'}\n`);
+    } catch (e) {
+      process.stdout.write(`MySQL check failed: ${String(e?.message ?? e)}\n`);
+    }
+  })();
 });

@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app/app.dart';
 import 'src/app/app_bootstrapper.dart';
 import 'src/features/settings/presentation/settings_controller.dart';
+import 'src/core/supabase/supabase_client.dart';
 
 Future<void> _initFirebase() async {
   if (kIsWeb) {
@@ -43,6 +45,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await initializeSupabase();
 
   await _initFirebase();
   if (!kIsWeb) {
